@@ -1,25 +1,24 @@
 plugins {
-    alias(libs.plugins.android.application)
-    alias(libs.plugins.jetbrains.kotlin.android)
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
 }
+
+def compose_version = "1.5.4"
 android {
-    namespace 'ai.quickpose.basicdemo'
-    compileSdk 33
+    namespace 'ai.quickpose.devapp'
+    compileSdk 34
 
     defaultConfig {
+        minSdk 34
         applicationId "ai.quickpose.devdemo"
-        minSdk 28
-        targetSdk 33
         versionCode 1
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        vectorDrawables {
-            useSupportLibrary true
-        }
     }
 
     buildTypes {
+
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
@@ -32,19 +31,31 @@ android {
     kotlinOptions {
         jvmTarget = '1.8'
     }
+    buildFeatures {
+        viewBinding true
+
+        compose true
+    }
     
-    packaging {
-        resources {
-            excludes += '/META-INF/{AL2.0,LGPL2.1}'
-        }
+    composeOptions {
+        kotlinCompilerExtensionVersion compose_version
     }
 }
 
 dependencies {
-    implementation 'androidx.core:core-ktx:1.9.0'
-    implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'com.google.android.material:material:1.8.0'
-    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.6.1'
+
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+
+    implementation "androidx.activity:activity-compose:1.9.3"
+    implementation "androidx.compose.foundation:foundation:1.7.6"
+    implementation "androidx.core:core-ktx:1.12.0"
+
+    implementation "androidx.compose.ui:ui:$compose_version"
+    implementation "androidx.compose.material:material:$compose_version"
+    implementation "androidx.compose.ui:ui-tooling-preview:$compose_version"
+    debugImplementation "androidx.compose.ui:ui-tooling:$compose_version"
+    implementation "androidx.compose.material3:material3:1.3.1"
+
 
     // CameraX core library
     def camerax_version = "1.3.0-alpha05"
@@ -58,7 +69,12 @@ dependencies {
     implementation 'com.google.guava:guava:27.0.1-android'
     implementation 'com.google.protobuf:protobuf-javalite:3.19.1'
 
-    implementation 'com.microsoft.onnxruntime:onnxruntime-android:latest.release'
     implementation 'ai.quickpose:quickpose-mp:0.1'
     implementation 'ai.quickpose:quickpose-core:0.2'
+
+    implementation 'androidx.core:core-performance:1.0.0-alpha02'
+
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
 }
