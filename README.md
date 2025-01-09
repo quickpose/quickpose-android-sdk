@@ -62,6 +62,7 @@ Features
 | Joint Positions  | ![MediaPipe Landmarks](docs/v0.2/overlay-all-points.gif) | v0.1        |
 | <p><b>Overlays</b></p><p>Whole Body</p><p>Upper Body</p><p>Lower Body</p><p>Shoulder</p><p>Left Arm</p><p>Right Arm</p><p>Left Leg</p><p>Right Leg</p>       |  ![Whole Body Overlay](docs/v0.1/overlay-whole-body.gif) | v0.1        |
 | <p><b>Health - Range Of Motion</b></p><p>Left Shoulder</p><p>Right Shoulder</p><p>Left Hip</p><p>Right Hip</p><p>Left Knee</p><p>Right Knee</p><p>Back</p><p>Neck</p>       |  ![health-shoulder-right-rom](docs/v0.3/health-shoulder-right-rom.gif)  | v0.1      |
+| <p><b>Fitness - Exercise Detection & Counter</b></p><p>Squat</p><p>Sumo Squat</p><p>Jumping Jack</p><p>Push Up</p> <p>Plank</p> <p>Cobra Wings</p>   <p>Left Leg Lunge</p><p>Right Leg Lunge</p><p> SitUps</p><p> CobraWings</p><p> Plank</p><p>Leg Raises</p><p>Glute Bridge</p><p>Overhead Dumbbell Press</p><p>vUps</p><p>Lateral Raises</p><p>Front Raises</p><p>Hip Abduction Standing Left</p><p>Hip Abduction Standing Right</p><p>Side Lunges Left</p><p>Side Lunges Right</p><p> Biceps Curls</p>|  ![fitness-pushup](docs/v0.8/fitness-pushup.gif) | v0.3|     
    
 
 Meta Features
@@ -73,18 +74,10 @@ Meta Features
 | Conditional Styling | ![knee-conditional-image](docs/v0.4/health-knee-rom-conditional.gif)  | v0.1 |   
 
 
-
-Supported Platforms
+Min Version Requirements
 ------------------
 
-| Android Device | Emulator x86_64 | Emulator arm64  | 
-| --------------:| ---------------:|----------------:|
-| ✅ Runs        |  ⚙ Compiles |        ⚙ Compiles  |
-
-Requirements
-------------------
-
-- Android SDK 28+
+- Android SDK 33+
 
 Installing the SDK
 ------------------
@@ -113,7 +106,7 @@ dependencies {
 
     implementation("com.microsoft.onnxruntime:onnxruntime-android:latest.release")
     implementation("ai.quickpose:quickpose-mp:0.1")
-    implementation("ai.quickpose:quickpose-core:0.2")
+    implementation("ai.quickpose:quickpose-core:0.3")
 }
 
 ```
