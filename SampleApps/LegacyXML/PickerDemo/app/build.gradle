@@ -3,7 +3,7 @@ plugins {
     alias(libs.plugins.jetbrains.kotlin.android)
 }
 android {
-    namespace 'ai.quickpose.basicdemo'
+    namespace 'ai.quickpose.pickerdemo'
     compileSdk 33
 
     defaultConfig {
