@@ -8,7 +8,7 @@ android {
 
     defaultConfig {
         applicationId "ai.quickpose.devdemo"
-        minSdk 33
+        minSdk 26
         targetSdk 33
         versionCode 1
         versionName "1.0"
@@ -60,5 +60,5 @@ dependencies {
 
     implementation 'com.microsoft.onnxruntime:onnxruntime-android:latest.release'
     implementation 'ai.quickpose:quickpose-mp:0.1'
-    implementation 'ai.quickpose:quickpose-core:0.4'
+    implementation 'ai.quickpose:quickpose-core:0.5'
 }
