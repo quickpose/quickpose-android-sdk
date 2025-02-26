@@ -67,7 +67,7 @@ Meta Features
 Min Version Requirements
 ------------------
 
-- Android SDK 33+
+- Android SDK 26
 
 Installing the SDK
 ------------------
@@ -96,7 +96,7 @@ dependencies {
 
     implementation("com.microsoft.onnxruntime:onnxruntime-android:latest.release")
     implementation("ai.quickpose:quickpose-mp:0.1")
-    implementation("ai.quickpose:quickpose-core:0.4")
+    implementation("ai.quickpose:quickpose-core:0.5")
 }
 
 ```
