@@ -64,7 +64,7 @@ class MainActivity : ComponentActivity() {
                                         cameraSwitchView =
                                                 QuickPoseCameraSwitchView(context, quickPose)
                                         lifecycleScope.launch {
-                                            cameraSwitchView?.startCamera(useFrontCamera.value)
+                                            cameraSwitchView?.start(useFrontCamera.value)
                                         }
                                         cameraSwitchView!!
                                     }
@@ -75,7 +75,7 @@ class MainActivity : ComponentActivity() {
                                         lifecycleScope.launch {
                                             useFrontCamera.value = !useFrontCamera.value
                                             quickPose.stop()
-                                            cameraSwitchView?.startCamera(useFrontCamera.value)
+                                            cameraSwitchView?.start(useFrontCamera.value)
                                             quickPose.resume()
                                         }
                                     },
@@ -129,10 +129,10 @@ class MainActivity : ComponentActivity() {
         windowInsetsController.hide(android.view.WindowInsets.Type.navigationBars())
 
         lifecycleScope.launch {
-            cameraSwitchView?.startCamera(useFrontCamera.value)
+            cameraSwitchView?.start(useFrontCamera.value)
             quickPose.start(
                     arrayOf(Feature.RangeOfMotion(RangeOfMotion.Shoulder(Side.LEFT, false))),
-                    onFrame = { status, featureResults, feedback, landmarks ->
+                    onFrame = { status, overlay, featureResults, feedback, landmarks ->
                         println("$status, $featureResults")
                         if (status is Status.Success) {
                             runOnUiThread {

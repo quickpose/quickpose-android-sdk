@@ -82,7 +82,7 @@ dependencies {
     implementation ("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1'")
     
     // CameraX core library
-    val camerax_version = ("1.3.0-alpha05")
+    val camerax_version = ("1.4.1")
     
     implementation("androidx.camera:camera-core:$camerax_version")
     implementation("androidx.camera:camera-camera2:$camerax_version")
@@ -96,7 +96,7 @@ dependencies {
 
     implementation("com.microsoft.onnxruntime:onnxruntime-android:latest.release")
     implementation("ai.quickpose:quickpose-mp:0.1")
-    implementation("ai.quickpose:quickpose-core:0.5")
+    implementation("ai.quickpose:quickpose-core:0.6")
 }
 
 ```
@@ -123,7 +123,7 @@ quickPose.start(
     arrayOf(
         Feature.Overlay(group = Landmarks.Group.Arm(Side.LEFT))
     ),
-    onFrame = { status, featureResults, feedback, landmarks ->
+    onFrame = { status, overlay, featureResults, feedback, landmarks ->
     	println("$status, $featureResults")
     }
  )               
