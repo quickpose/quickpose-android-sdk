@@ -1,5 +1,6 @@
 package ai.quickpose.pickerdemo
 
+import ai.quickpose.camera.QuickPoseCameraSwitchView
 import ai.quickpose.core.*
 import ai.quickpose.core.Feature
 import android.annotation.SuppressLint
@@ -192,63 +193,81 @@ class MainActivity : AppCompatActivity() {
             quickPose.start(
                     selectedFeatures,
                     onStart = {},
-                    onFrame = { status, overlay, featureResults, feedback, landmarks ->
+                    onFrame = { status, overlay, features, feedback, landmarks ->
                         if (status is Status.Success) {
                             runOnUiThread {
                                 statusTextView?.text =
                                         "Powered by QuickPose.ai v${quickPose.quickPoseVersion()}\n${status.fps} fps"
                             }
                         }
-                        when (status) {
-                            is Status.Success -> {
-                                runOnUiThread {
-                                    if (feedback.isNotEmpty()) {
-                                        val feedbackResult = feedback.values.first()
-                                        feedbackTextView?.text = feedbackResult.displayString
-                                        feedbackTextView?.visibility = View.VISIBLE
-                                    } else {
-                                        feedbackTextView?.text = ""
-                                        feedbackTextView?.visibility = View.GONE
-                                    }
-
-                                    if (selectedFeatures.firstOrNull() is Feature.Fitness) {
-                                        val fitnessFeature =
-                                                selectedFeatures.first() as Feature.Fitness
-                                        val result = featureResults[selectedFeatures.first()]
-                                        result?.let {
-                                            val measure = it.value
-                                            valueBar?.visibility = View.VISIBLE
-                                            valueBar?.let { valueBar ->
-                                                val parentWidth = (valueBar.parent as View).width
-                                                valueBar.layoutParams?.width =
-                                                        (measure * parentWidth).toInt()
-                                            }
-
-                                            if (it.stringValue == "plank") {
-                                                timer.time(measure)
-                                                val timeInPosition =
-                                                        String.format("%.2f", timer.getState().time)
-                                                featureTextView?.text = timeInPosition
-                                                featureTextView?.visibility = View.VISIBLE
-                                            } else {
-                                                counter.count(measure)
-                                                val count = counter.state.count
-
-                                                featureTextView?.text =
-                                                        "${fitnessFeature.displayString()}:  ${count}"
-                                                featureTextView?.visibility = View.VISIBLE
-                                            }
+                        runOnUiThread {
+                            feedbackTextView?.apply {
+                                when (status) {
+                                    is Status.Success -> {
+                                        if (features.values.isNotEmpty()) {
+                                            val result = features.values.first()
+                                            text = "${(result.value * 100).toInt()}%"
+                                            visibility = View.VISIBLE
+                                        } else if (feedback.isNotEmpty() && feedback.values.first().isRequired) {
+                                            val feedbackResult = feedback.values.first()
+                                            text = feedbackResult.displayString
+                                            visibility = View.VISIBLE
+                                        } else {
+                                            text = ""
+                                            visibility = View.GONE
                                         }
-                                    } else {
-                                        featureTextView?.text = ""
-                                        featureTextView?.visibility = View.INVISIBLE
+                                    }
+                                    Status.NoPersonFound -> {
+                                        text = "Stand in view"
+                                        visibility = View.VISIBLE
+                                    }
+                                    Status.SdkValidationError -> {
+                                        text = "Be back soon"
+                                        visibility = View.VISIBLE
                                     }
                                 }
                             }
-                            else -> {
-                                println(status)
-                            }
                         }
+//                        runOnUiThread {
+//                            if (status is Status.Success) {
+//                                if (selectedFeatures.firstOrNull() is Feature.Fitness) {
+//                                    val fitnessFeature =
+//                                            selectedFeatures.first() as Feature.Fitness
+//                                    val result = features[selectedFeatures.first()]
+//                                    result?.let {
+//                                        val measure = it.value
+//                                        valueBar?.visibility = View.VISIBLE
+//                                        valueBar?.let { valueBar ->
+//                                            val parentWidth = (valueBar.parent as View).width
+//                                            valueBar.layoutParams?.width =
+//                                                    (measure * parentWidth).toInt()
+//                                        }
+//
+//                                        if (it.stringValue == "plank") {
+//                                            timer.time(measure)
+//                                            val timeInPosition =
+//                                                    String.format("%.2f", timer.getState().time)
+//                                            featureTextView?.text = timeInPosition
+//                                            featureTextView?.visibility = View.VISIBLE
+//                                        } else {
+//                                            counter.count(measure)
+//                                            val count = counter.state.count
+//
+//                                            featureTextView?.text =
+//                                                    "${fitnessFeature.displayString()}:  ${count}"
+//                                            featureTextView?.visibility = View.VISIBLE
+//                                        }
+//                                    }
+//                                } else {
+//                                    featureTextView?.text = ""
+//                                    featureTextView?.visibility = View.INVISIBLE
+//                                }
+//
+//                            }
+//                            else -> {
+//                                println(status)
+//                            }
+//                        }
                     }
             )
         }

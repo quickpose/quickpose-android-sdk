@@ -96,7 +96,7 @@ dependencies {
 
     implementation("com.microsoft.onnxruntime:onnxruntime-android:latest.release")
     implementation("ai.quickpose:quickpose-mp:0.1")
-    implementation("ai.quickpose:quickpose-core:0.6")
+    implementation("ai.quickpose:quickpose-core:0.7")
 }
 
 ```
@@ -123,8 +123,8 @@ quickPose.start(
     arrayOf(
         Feature.Overlay(group = Landmarks.Group.Arm(Side.LEFT))
     ),
-    onFrame = { status, overlay, featureResults, feedback, landmarks ->
-    	println("$status, $featureResults")
+    onFrame = { status, overlay, features, feedback, landmarks ->
+    	println("$status, $features")
     }
  )               
 ```
