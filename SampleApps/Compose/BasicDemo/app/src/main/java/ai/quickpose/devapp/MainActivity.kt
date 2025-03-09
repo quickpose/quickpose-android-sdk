@@ -1,9 +1,9 @@
 package ai.quickpose.devapp
 
+import ai.quickpose.camera.QuickPoseCameraSwitchView
 import ai.quickpose.core.Feature
 import ai.quickpose.core.PermissionsHelper
 import ai.quickpose.core.QuickPose
-import ai.quickpose.core.QuickPoseCameraSwitchView
 import ai.quickpose.core.RangeOfMotion
 import ai.quickpose.core.Side
 import ai.quickpose.core.Status
