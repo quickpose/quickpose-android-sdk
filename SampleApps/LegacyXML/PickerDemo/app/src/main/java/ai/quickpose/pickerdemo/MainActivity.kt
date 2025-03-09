@@ -18,7 +18,7 @@ import kotlinx.coroutines.launch
 class MainActivity : AppCompatActivity() {
     private var useFrontCamera: Boolean = true
     private var cameraButton: View? = null
-    private var viewGroup: ViewGroup? = null
+    private var cameraAndOverlay: ViewGroup? = null
 
     private var categorySpinner: Spinner? = null
     private var featureSpinner: Spinner? = null
@@ -66,7 +66,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        viewGroup = findViewById<ViewGroup>(R.id.preview_display_layout)
+        cameraAndOverlay = findViewById<ViewGroup>(R.id.quickpose_camera_and_overlay_view)
 
         if (PermissionsHelper.checkAndRequestCameraPermissions(this)) {
             setupCamera()
@@ -82,14 +82,14 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupCamera() {
         cameraSwitchView = QuickPoseCameraSwitchView(this, quickPose)
-        viewGroup?.addView(cameraSwitchView)
+        cameraAndOverlay?.addView(cameraSwitchView)
 
         cameraButton = findViewById(R.id.camera_button)
         cameraButton?.setOnClickListener {
             lifecycleScope.launch {
                 useFrontCamera = !useFrontCamera
                 quickPose.stop()
-                cameraSwitchView?.startCamera(useFrontCamera)!!
+                cameraSwitchView?.start(useFrontCamera)!!
                 quickPose.resume()
             }
         }
@@ -188,11 +188,11 @@ class MainActivity : AppCompatActivity() {
         if (!PermissionsHelper.cameraPermissionsGranted(this)) return
 
         lifecycleScope.launch {
-            cameraSwitchView?.startCamera(useFrontCamera)!!
+            cameraSwitchView?.start(useFrontCamera)!!
             quickPose.start(
                     selectedFeatures,
                     onStart = {},
-                    onFrame = { status, featureResults, feedback, landmarks ->
+                    onFrame = { status, overlay, featureResults, feedback, landmarks ->
                         if (status is Status.Success) {
                             runOnUiThread {
                                 statusTextView?.text =

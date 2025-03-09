@@ -20,13 +20,13 @@ class MainActivity : AppCompatActivity() {
             ) // register for your free key at https://dev.quickpose.ai
     private var cameraSwitchView: QuickPoseCameraSwitchView? = null
     private var statusTextView: TextView? = null
-    private var viewGroup: ViewGroup? = null
+    private var cameraAndOverlay: ViewGroup? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        viewGroup = findViewById(R.id.preview_display_layout)
+        cameraAndOverlay = findViewById(R.id.quickpose_camera_and_overlay_view)
         cameraButton = findViewById(R.id.camera_button)
         statusTextView = findViewById(R.id.status_text_view)
 
@@ -39,13 +39,13 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupCamera() {
         cameraSwitchView = QuickPoseCameraSwitchView(this, quickPose)
-        viewGroup?.addView(cameraSwitchView)
+        cameraAndOverlay?.addView(cameraSwitchView)
 
         cameraButton?.setOnClickListener {
             lifecycleScope.launch {
                 useFrontCamera = !useFrontCamera
                 quickPose.stop()
-                cameraSwitchView?.startCamera(useFrontCamera)!!
+                cameraSwitchView?.start(useFrontCamera)!!
                 quickPose.resume()
             }
         }
@@ -80,10 +80,10 @@ class MainActivity : AppCompatActivity() {
         if (!PermissionsHelper.cameraPermissionsGranted(this)) return
 
         lifecycleScope.launch {
-            cameraSwitchView?.startCamera(useFrontCamera)!!
+            cameraSwitchView?.start(useFrontCamera)!!
             quickPose.start(
                     arrayOf(Feature.RangeOfMotion(RangeOfMotion.Shoulder(Side.LEFT, false))),
-                    onFrame = { status, featureResults, feedback, landmarks ->
+                    onFrame = { status, overlay, featureResults, feedback, landmarks ->
                         println("$status, $featureResults")
                     }
             )
