@@ -132,8 +132,8 @@ class MainActivity : ComponentActivity() {
             cameraSwitchView?.start(useFrontCamera.value)
             quickPose.start(
                     arrayOf(Feature.RangeOfMotion(RangeOfMotion.Shoulder(Side.LEFT, false))),
-                    onFrame = { status, overlay, featureResults, feedback, landmarks ->
-                        println("$status, $featureResults")
+                    onFrame = { status, overlay, features, feedback, landmarks ->
+                        println("$status, $features")
                         if (status is Status.Success) {
                             runOnUiThread {
                                 statusText.value =

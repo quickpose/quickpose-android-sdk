@@ -1,5 +1,6 @@
 package ai.quickpose.basicdemo
 
+import ai.quickpose.camera.QuickPoseCameraSwitchView
 import ai.quickpose.core.*
 import ai.quickpose.core.Feature
 import android.os.Build
@@ -83,8 +84,8 @@ class MainActivity : AppCompatActivity() {
             cameraSwitchView?.start(useFrontCamera)!!
             quickPose.start(
                     arrayOf(Feature.RangeOfMotion(RangeOfMotion.Shoulder(Side.LEFT, false))),
-                    onFrame = { status, overlay, featureResults, feedback, landmarks ->
-                        println("$status, $featureResults")
+                    onFrame = { status, overlay, features, feedback, landmarks ->
+                        println("$status, $features")
                     }
             )
         }
