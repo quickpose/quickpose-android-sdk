@@ -228,47 +228,45 @@ class MainActivity : AppCompatActivity() {
                                 }
                             }
                         }
-//                        runOnUiThread {
-//                            if (status is Status.Success) {
-//                                if (selectedFeatures.firstOrNull() is Feature.Fitness) {
-//                                    val fitnessFeature =
-//                                            selectedFeatures.first() as Feature.Fitness
-//                                    val result = features[selectedFeatures.first()]
-//                                    result?.let {
-//                                        val measure = it.value
-//                                        valueBar?.visibility = View.VISIBLE
-//                                        valueBar?.let { valueBar ->
-//                                            val parentWidth = (valueBar.parent as View).width
-//                                            valueBar.layoutParams?.width =
-//                                                    (measure * parentWidth).toInt()
-//                                        }
-//
-//                                        if (it.stringValue == "plank") {
-//                                            timer.time(measure)
-//                                            val timeInPosition =
-//                                                    String.format("%.2f", timer.getState().time)
-//                                            featureTextView?.text = timeInPosition
-//                                            featureTextView?.visibility = View.VISIBLE
-//                                        } else {
-//                                            counter.count(measure)
-//                                            val count = counter.state.count
-//
-//                                            featureTextView?.text =
-//                                                    "${fitnessFeature.displayString()}:  ${count}"
-//                                            featureTextView?.visibility = View.VISIBLE
-//                                        }
-//                                    }
-//                                } else {
-//                                    featureTextView?.text = ""
-//                                    featureTextView?.visibility = View.INVISIBLE
-//                                }
-//
-//                            }
-//                            else -> {
-//                                println(status)
-//                            }
-//                        }
+                        runOnUiThread {
+                            if (status is Status.Success) {
+                                if (selectedFeatures.firstOrNull() is Feature.Fitness) {
+                                    val fitnessFeature =
+                                            selectedFeatures.first() as Feature.Fitness
+                                    val result = features[selectedFeatures.first()]
+                                    result?.let {
+                                        val measure = it.value
+                                        valueBar?.visibility = View.VISIBLE
+                                        valueBar?.let { valueBar ->
+                                            val parentWidth = (valueBar.parent as View).width
+                                            valueBar.layoutParams?.width =
+                                                    (measure * parentWidth).toInt()
+                                        }
+
+                                        if (it.stringValue == "plank") {
+                                            timer.time(measure)
+                                            val timeInPosition =
+                                                    String.format("%.2f", timer.getState().time)
+                                            featureTextView?.text = timeInPosition
+                                            featureTextView?.visibility = View.VISIBLE
+                                        } else {
+                                            counter.count(measure)
+                                            val count = counter.state.count
+
+                                            featureTextView?.text =
+                                                    "${fitnessFeature.displayString()}:  ${count}"
+                                            featureTextView?.visibility = View.VISIBLE
+                                        }
+                                    }
+                                } else {
+                                    featureTextView?.text = ""
+                                    featureTextView?.visibility = View.INVISIBLE
+                                }
+
+                            }
+                        }
                     }
+
             )
         }
     }
