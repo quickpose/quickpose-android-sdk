@@ -1,5 +1,6 @@
 package ai.quickpose.camera
 
+import ai.quickpose.core.QuickPose
 import android.content.Context
 import android.util.AttributeSet
 import android.view.SurfaceView

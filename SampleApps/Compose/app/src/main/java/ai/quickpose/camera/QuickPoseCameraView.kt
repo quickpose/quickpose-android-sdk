@@ -1,5 +1,6 @@
 package ai.quickpose.camera
 
+import ai.quickpose.core.QuickPose
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.SurfaceTexture
