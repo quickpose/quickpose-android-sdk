@@ -170,7 +170,8 @@ class QuickPoseCameraView(
             } else {
                 // API 26-27
                 val surfaces = listOf(this.holder.surface, mlSurface)
-                camera.createCaptureSession(surfaces, captureSessionCallback, cameraHandler)
+                val mainHandler = Handler(context.mainLooper)
+                camera.createCaptureSession(surfaces, captureSessionCallback, mainHandler)
             }
         }
     }
