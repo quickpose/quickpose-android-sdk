@@ -205,11 +205,7 @@ class MainActivity : AppCompatActivity() {
                             feedbackTextView?.apply {
                                 when (status) {
                                     is Status.Success -> {
-                                        if (features.values.isNotEmpty()) {
-                                            val result = features.values.first()
-                                            text = "${(result.value * 100).toInt()}%"
-                                            visibility = View.VISIBLE
-                                        } else if (feedback.isNotEmpty() && feedback.values.first().isRequired) {
+                                        if (feedback.isNotEmpty() && feedback.values.first().isRequired) {
                                             val feedbackResult = feedback.values.first()
                                             text = feedbackResult.displayString
                                             visibility = View.VISIBLE
