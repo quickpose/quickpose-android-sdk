@@ -4,6 +4,7 @@ import ai.quickpose.camera.QuickPoseCameraSwitchView
 import ai.quickpose.core.*
 import ai.quickpose.core.Feature
 import android.annotation.SuppressLint
+import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import android.view.*
@@ -49,7 +50,7 @@ class MainActivity : AppCompatActivity() {
                     "Position",
                     "Fitness",
                     "Health",
-                    // "Conditional",
+                     "Conditional",
                     // "Sports",
                     // "Measurement"
                     )
@@ -325,41 +326,44 @@ class MainActivity : AppCompatActivity() {
                     )
             // "Input" -> listOf(listOf(raisedFingers()), listOf(thumbsUp()),
             // listOf(thumbsUpOrDown()))
-            // "Conditional" -> {
-            //     val greenStyle =
-            //             QuickPose.Style(
-            //                     conditionalColors =
-            //                             listOf(
-            //                                     QuickPose.Style.ConditionalColor(
-            //                                             min = 40,
-            //                                             max = null,
-            //                                             color = Color.GREEN
-            //                                     )
-            //                             )
-            //             )
-            //     val redStyle =
-            //             QuickPose.Style(
-            //                     conditionalColors =
-            //                             listOf(
-            //                                     QuickPose.Style.ConditionalColor(
-            //                                             min = 180,
-            //                                             max = null,
-            //                                             color = Color.RED
-            //                                     )
-            //                             )
-            //             )
-            //     listOf(
-            //             listOf(
-            //                     rangeOfMotion(
-            //                             Landmarks.Body.LEFT_SHOULDER,
-            //                             false,
-            //                             style = greenStyle
-            //                     )
-            //             ),
-            //             listOf(rangeOfMotion(Landmarks.Body.RIGHT_KNEE, true, style =
-            // redStyle))
-            //     )
-            // }
+            "Conditional" -> {
+                val greenStyle =
+                    Style(
+                        conditionalColors =
+                        listOf(
+                            Style.ConditionalColor(
+                                min = 40.0f,
+                                max = null,
+                                color = Color.valueOf(Color.GREEN)
+                            )
+                        )
+                    )
+                val redStyle =
+                    Style(
+                        conditionalColors =
+                        listOf(
+                            Style.ConditionalColor(
+                                min = 180.0f,
+                                max = null,
+                                color = Color.valueOf(Color.RED)
+                            )
+                        )
+                    )
+                listOf(
+                    listOf(
+                        Feature.RangeOfMotion(
+                            RangeOfMotion.Shoulder(Side.LEFT, true),
+                            style = greenStyle
+                        )
+                    ),
+                    listOf(
+                        Feature.RangeOfMotion(
+                            RangeOfMotion.Knee(Side.RIGHT, true),
+                            style = redStyle
+                        )
+                    )
+                )
+            }
             "Fitness" ->
                     listOf(
                             listOf(Feature.Fitness(FitnessFeature.Squats)),
