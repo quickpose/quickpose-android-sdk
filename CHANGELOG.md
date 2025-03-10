@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## v0.7.0 - 2025-03-10
 
 ### Fixed
-- Made Camera views public.
+- Camera views are public.
 - Internal function exposed for QP camera to work.
 - onFrame returns overlay as canvas.
 
