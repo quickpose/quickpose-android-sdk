@@ -69,6 +69,7 @@ dependencies {
     implementation 'com.google.guava:guava:27.0.1-android'
     implementation 'com.google.protobuf:protobuf-javalite:3.19.1'
 
+    implementation 'com.microsoft.onnxruntime:onnxruntime-android:latest.release'
     implementation 'ai.quickpose:quickpose-mp:0.1'
     implementation 'ai.quickpose:quickpose-core:0.9'
 
