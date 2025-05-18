@@ -4,6 +4,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v0.13 - 2025-05-18
+
+### Fixed
+- Minor Log noise
+
+## v0.12 - 2025-05-18
+
+### Changed
+- Camera views accept a target camera resolution as input
+- QuickPoseCameraView returns an aspect ratio for using in scaling view
+- ComposeFunctionDemo shows aspect ratio corrected view
+
+### Fixed
+- Crash linked to fps
+- Startup stability issues (for best results call AndroidAssetUtil.initializeNativeAssetManager(this) in your startup code)
+
 ## v0.11 - 2025-04-30
 
 ### Fixed
