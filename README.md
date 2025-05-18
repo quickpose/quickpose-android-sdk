@@ -36,7 +36,7 @@ How it works
 
 QuickPose process a video frame and makes it easy for developers to perform complex AI features to the image, such as overlaying markings to the output image to highlight the user's pose.
 
-```swift
+```kotlin
 +----------+          +-------------+          +-----------------+
 |          |          |             |          |  Overlay View   |
 |  Camera  |--------->|  QuickPose  |--------->|        +        |
