@@ -8,12 +8,14 @@ import ai.quickpose.core.RangeOfMotion
 import ai.quickpose.core.Side
 import ai.quickpose.core.Status
 import ai.quickpose.devapp.theme.BasicDemoTheme
+import android.app.Activity
 import android.os.Bundle
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -24,6 +26,7 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -46,7 +49,7 @@ class MainActivity : ComponentActivity() {
             ) // register for your free key at https://dev.quickpose.ai
     private var cameraSwitchView: QuickPoseCameraSwitchView? = null
     private var hasPermissions = mutableStateOf(false)
-
+    private var cameraAspectRatio = mutableStateOf<Float>(1.0f)
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
@@ -60,14 +63,37 @@ class MainActivity : ComponentActivity() {
                     Box(modifier = Modifier.fillMaxSize().padding(padding)) {
                         if (hasPermissions.value) {
                             AndroidView(
-                                    factory = { context ->
-                                        cameraSwitchView =
-                                                QuickPoseCameraSwitchView(context, quickPose)
-                                        lifecycleScope.launch {
-                                            cameraSwitchView?.start(useFrontCamera.value)
-                                        }
-                                        cameraSwitchView!!
+                                factory = { ctx ->
+                                    cameraSwitchView = QuickPoseCameraSwitchView(ctx, quickPose)
+                                    lifecycleScope.launch {
+                                        cameraAspectRatio.value = cameraSwitchView?.start(useFrontCamera.value) ?: 1.0f;
+                                        quickPose.start(
+                                            arrayOf(
+                                                Feature.RangeOfMotion(
+                                                    RangeOfMotion.Shoulder(Side.LEFT, false)
+                                                )
+                                            ),
+                                            onFrame = { status, overlay, features, feedback, landmarks ->
+                                                println("$status, $features")
+                                                if (status is Status.Success) {
+                                                    runOnUiThread {
+                                                        statusText.value =
+                                                            "Powered by QuickPose.ai v${quickPose.quickPoseVersion()}\n${status.fps} fps"
+                                                    }
+                                                }
+                                            }
+                                        )
                                     }
+                                    cameraSwitchView!!
+                                },
+                                update = { view ->
+                                    lifecycleScope.launch {
+                                        cameraAspectRatio.value = view.aspectRatio
+                                    }
+                                },
+                                modifier =
+                                Modifier.matchParentSize()
+                                    .aspectRatio(cameraAspectRatio.value)
                             )
 
                             IconButton(
