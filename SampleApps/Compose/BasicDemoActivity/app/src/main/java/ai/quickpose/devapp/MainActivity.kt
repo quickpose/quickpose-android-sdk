@@ -45,7 +45,7 @@ class MainActivity : ComponentActivity() {
     private var quickPose: QuickPose =
             QuickPose(
                     this,
-                    sdkKey = "YOUR SDK KEY HERE"
+                    sdkKey = "01GS5AG41TSVT9Y3CYD0EG9FX4"
             ) // register for your free key at https://dev.quickpose.ai
     private var cameraSwitchView: QuickPoseCameraSwitchView? = null
     private var hasPermissions = mutableStateOf(false)
