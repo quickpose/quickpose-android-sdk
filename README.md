@@ -69,9 +69,13 @@ Min Version Requirements
 
 - Android SDK 26
 
-Installing the SDK
+16kb Page Size Support
 ------------------
 
+- You'll need minimum quickpose-core 0.17 and quickpose-mp 0.6
+
+Installing the SDK
+------------------
 
 In your app's `build.gradle`, copy the quickpose dependencies
 
@@ -95,7 +99,7 @@ dependencies {
 
     implementation("com.microsoft.onnxruntime:onnxruntime-android:latest.release")
     implementation("ai.quickpose:quickpose-mp:0.4")
-    implementation("ai.quickpose:quickpose-core:0.16")
+    implementation("ai.quickpose:quickpose-core:0.17")
 }
 
 ```
