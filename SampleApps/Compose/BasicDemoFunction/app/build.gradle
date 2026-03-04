@@ -6,7 +6,7 @@ plugins {
 def compose_version = "1.5.4"
 android {
     namespace 'ai.quickpose.devapp'
-    compileSdk 34
+    compileSdk 35
 
     defaultConfig {
         minSdk 26
