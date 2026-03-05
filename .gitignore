@@ -1,5 +1,6 @@
 .DS_Store
-.idea
+.idea/
 build
 .vscode
 .gradle
+local.properties
