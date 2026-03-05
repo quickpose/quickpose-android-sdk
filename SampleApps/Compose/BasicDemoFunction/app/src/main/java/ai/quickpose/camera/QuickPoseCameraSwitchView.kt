@@ -4,8 +4,10 @@ import ai.quickpose.core.QuickPose
 import android.content.Context
 import android.util.AttributeSet
 import android.util.Size
+import android.view.Gravity
 import android.view.SurfaceView
 import android.view.View
+import android.view.ViewGroup
 import android.widget.FrameLayout
 
 class QuickPoseCameraSwitchView
@@ -15,7 +17,7 @@ constructor(
         private var quickPose: QuickPose,
         attrs: AttributeSet? = null,
         defStyleAttr: Int = 0,
-        targetResolution: Size = Size(1080, 1920)
+        targetResolution: Size = Size(1920, 1080)
 ) : FrameLayout(context, attrs, defStyleAttr) {
 
     private var frontCameraView: QuickPoseCameraView? = null
@@ -29,12 +31,12 @@ constructor(
         frontCameraView =
                 QuickPoseCameraView(isFrontCamera = true, quickPose, context, targetResolution)
         frontCameraView?.visibility = View.VISIBLE
-        addView(frontCameraView)
+        addView(frontCameraView, LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.CENTER))
 
         backCameraView =
                 QuickPoseCameraView(isFrontCamera = false, quickPose, context, targetResolution)
         backCameraView?.visibility = View.INVISIBLE
-        addView(backCameraView)
+        addView(backCameraView, LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.CENTER))
 
         frontOverlayView = SurfaceView(context)
         frontOverlayView?.visibility = View.VISIBLE

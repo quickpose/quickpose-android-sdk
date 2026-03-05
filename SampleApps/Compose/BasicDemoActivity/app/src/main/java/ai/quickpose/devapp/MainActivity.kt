@@ -59,83 +59,69 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             BasicDemoTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { padding ->
-                    Box(modifier = Modifier.fillMaxSize().padding(padding)) {
-                        if (hasPermissions.value) {
-                            AndroidView(
-                                factory = { ctx ->
-                                    cameraSwitchView = QuickPoseCameraSwitchView(ctx, quickPose)
-                                    lifecycleScope.launch {
-                                        cameraAspectRatio.value = cameraSwitchView?.start(useFrontCamera.value) ?: 1.0f;
-                                        quickPose.start(
-                                            arrayOf(
-                                                Feature.RangeOfMotion(
-                                                    RangeOfMotion.Shoulder(Side.LEFT, false)
-                                                )
-                                            ),
-                                            onFrame = { status, overlay, features, feedback, landmarks ->
-                                                println("$status, $features")
-                                                if (status is Status.Success) {
-                                                    runOnUiThread {
-                                                        statusText.value =
-                                                            "Powered by QuickPose.ai v${quickPose.quickPoseVersion()}\n${status.fps} fps"
-                                                    }
+                Box(modifier = Modifier.fillMaxSize()) {
+                    if (hasPermissions.value) {
+                        AndroidView(
+                            factory = { ctx ->
+                                cameraSwitchView = QuickPoseCameraSwitchView(ctx, quickPose)
+                                lifecycleScope.launch {
+                                    cameraAspectRatio.value = cameraSwitchView?.start(useFrontCamera.value) ?: 1.0f;
+                                    quickPose.start(
+                                        arrayOf(
+                                            Feature.RangeOfMotion(
+                                                RangeOfMotion.Shoulder(Side.LEFT, false)
+                                            )
+                                        ),
+                                        onFrame = { status, overlay, features, feedback, landmarks ->
+                                            println("$status, $features")
+                                            if (status is Status.Success) {
+                                                runOnUiThread {
+                                                    statusText.value =
+                                                        "Powered by QuickPose.ai v${quickPose.quickPoseVersion()}\n${status.fps} fps"
                                                 }
                                             }
-                                        )
-                                    }
-                                    cameraSwitchView!!
-                                },
-                                update = { view ->
-                                    lifecycleScope.launch {
-                                        cameraAspectRatio.value = view.aspectRatio
-                                    }
-                                },
-                                modifier =
-                                Modifier.matchParentSize()
-                                    .aspectRatio(cameraAspectRatio.value)
-                            )
-
-                            IconButton(
-                                    onClick = {
-                                        lifecycleScope.launch {
-                                            useFrontCamera.value = !useFrontCamera.value
-                                            quickPose.stop()
-                                            cameraSwitchView?.start(useFrontCamera.value)
-                                            quickPose.resume()
                                         }
-                                    },
-                                    modifier = Modifier.align(Alignment.TopEnd).padding(32.dp)
-                            ) {
-                                Icon(
-                                        imageVector = Icons.Default.Settings,
-                                        tint = Color.White,
-                                        contentDescription = "Switch Camera"
-                                )
-                            }
-                        } else {
-                            Text(
-                                    text = "Camera permissions are required",
-                                    color = Color.White,
-                                    fontSize = 16.sp,
-                                    modifier = Modifier.align(Alignment.Center),
-                                    textAlign = TextAlign.Center
-                            )
-                        }
+                                    )
+                                }
+                                cameraSwitchView!!
+                            },
+                            modifier = Modifier.fillMaxSize()
+                        )
 
-                        Box(
-                                modifier = Modifier.fillMaxSize().padding(bottom = 64.dp),
-                                contentAlignment = Alignment.BottomCenter
+                        IconButton(
+                                onClick = {
+                                    lifecycleScope.launch {
+                                        useFrontCamera.value = !useFrontCamera.value
+                                        quickPose.stop()
+                                        cameraSwitchView?.start(useFrontCamera.value)
+                                        quickPose.resume()
+                                    }
+                                },
+                                modifier = Modifier.align(Alignment.TopEnd).padding(top = 48.dp, end = 16.dp)
                         ) {
-                            Text(
-                                    text = statusText.value,
-                                    color = Color.White,
-                                    fontSize = 16.sp,
-                                    modifier = Modifier.fillMaxWidth(),
-                                    textAlign = TextAlign.Center
+                            Icon(
+                                    imageVector = Icons.Default.Settings,
+                                    tint = Color.White,
+                                    contentDescription = "Switch Camera"
                             )
                         }
+                    } else {
+                        Text(
+                                text = "Camera permissions are required",
+                                color = Color.White,
+                                fontSize = 16.sp,
+                                modifier = Modifier.align(Alignment.Center),
+                                textAlign = TextAlign.Center
+                        )
                     }
+
+                    Text(
+                            text = statusText.value,
+                            color = Color.White,
+                            fontSize = 16.sp,
+                            modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 48.dp).fillMaxWidth(),
+                            textAlign = TextAlign.Center
+                    )
                 }
             }
         }
