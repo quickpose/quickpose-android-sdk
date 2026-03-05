@@ -10,13 +10,11 @@ import ai.quickpose.devapp.theme.BasicDemoTheme
 import android.app.Activity
 import android.view.WindowManager
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
-import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
@@ -83,71 +81,57 @@ fun CameraContent() {
 
     // UI
     BasicDemoTheme {
-        Scaffold(modifier = Modifier.fillMaxSize()) { padding ->
-            Box(modifier = Modifier.fillMaxSize().padding(padding).padding(bottom = 60.dp)) {
-                AndroidView(
-                    factory = { ctx ->
-                        cameraSwitchView = QuickPoseCameraSwitchView(ctx, quickPose)
-                        lifecycleOwner.lifecycleScope.launch {
-                            cameraAspectRatio.value = cameraSwitchView?.start(useFrontCamera.value) ?: 1.0f;
-                            quickPose.start(
-                                arrayOf(
-                                    Feature.RangeOfMotion(
-                                        RangeOfMotion.Shoulder(Side.LEFT, false)
-                                    )
-                                ),
-                                onFrame = { status, overlay, features, feedback, landmarks ->
-                                    println("$status, $features")
-                                    if (status is Status.Success) {
-                                        (context as Activity).runOnUiThread {
-                                            statusText.value =
-                                                "Powered by QuickPose.ai v${quickPose.quickPoseVersion()}\n${status.fps} fps"
-                                        }
+        Box(modifier = Modifier.fillMaxSize()) {
+            AndroidView(
+                factory = { ctx ->
+                    cameraSwitchView = QuickPoseCameraSwitchView(ctx, quickPose)
+                    lifecycleOwner.lifecycleScope.launch {
+                        cameraAspectRatio.value = cameraSwitchView?.start(useFrontCamera.value) ?: 1.0f;
+                        quickPose.start(
+                            arrayOf(
+                                Feature.RangeOfMotion(
+                                    RangeOfMotion.Shoulder(Side.LEFT, false)
+                                )
+                            ),
+                            onFrame = { status, overlay, features, feedback, landmarks ->
+                                println("$status, $features")
+                                if (status is Status.Success) {
+                                    (context as Activity).runOnUiThread {
+                                        statusText.value =
+                                            "Powered by QuickPose.ai v${quickPose.quickPoseVersion()}\n${status.fps} fps"
                                     }
                                 }
-                            )
-                        }
-                        cameraSwitchView!!
-                    },
-                    update = { view ->
-                        lifecycleOwner.lifecycleScope.launch {
-                            cameraAspectRatio.value = view.aspectRatio
-                        }
-                    },
-                    modifier =
-                    Modifier.matchParentSize()
-                        .aspectRatio(cameraAspectRatio.value)
-                )
-                IconButton(
-                    onClick = {
-                        lifecycleOwner.lifecycleScope.launch {
-                            useFrontCamera.value = !useFrontCamera.value
-                            quickPose.stop()
-                            cameraAspectRatio.value = cameraSwitchView?.start(useFrontCamera.value) ?: 1.0f;
-                            quickPose.resume()
-                        }
-                    },
-                    modifier = Modifier.align(Alignment.TopEnd).padding(32.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Settings,
-                        tint = Color.White,
-                        contentDescription = "Switch Camera"
-                    )
-                }
-            }
-            Box(
-                modifier = Modifier.fillMaxSize().padding(bottom = 64.dp),
-                contentAlignment = Alignment.BottomCenter
+                            }
+                        )
+                    }
+                    cameraSwitchView!!
+                },
+                modifier = Modifier.fillMaxSize()
+            )
+            IconButton(
+                onClick = {
+                    lifecycleOwner.lifecycleScope.launch {
+                        useFrontCamera.value = !useFrontCamera.value
+                        quickPose.stop()
+                        cameraAspectRatio.value = cameraSwitchView?.start(useFrontCamera.value) ?: 1.0f;
+                        quickPose.resume()
+                    }
+                },
+                modifier = Modifier.align(Alignment.TopEnd).padding(top = 48.dp, end = 16.dp)
             ) {
-                Text(
-                    text = statusText.value,
-                    color = Color.Blue,
-                    fontSize = 16.sp,
-                    modifier = Modifier.fillMaxWidth(),
-                    textAlign = TextAlign.Center
+                Icon(
+                    imageVector = Icons.Default.Settings,
+                    tint = Color.White,
+                    contentDescription = "Switch Camera"
                 )
             }
+            Text(
+                text = statusText.value,
+                color = Color.White,
+                fontSize = 16.sp,
+                modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 48.dp).fillMaxWidth(),
+                textAlign = TextAlign.Center
+            )
         }
     }
 }

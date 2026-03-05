@@ -5,49 +5,97 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.SurfaceTexture
 import android.hardware.camera2.CameraCaptureSession
-import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CameraManager
 import android.hardware.camera2.params.OutputConfiguration
 import android.hardware.camera2.params.SessionConfiguration
-import android.hardware.camera2.params.StreamConfigurationMap
 import android.opengl.GLES20
 import android.os.Build
 import android.os.Handler
 import android.os.HandlerThread
 import android.util.Log
 import android.util.Size
-import android.view.Gravity
 import android.view.Surface
+import android.view.SurfaceHolder
 import android.view.SurfaceView
-import android.widget.FrameLayout
 import androidx.core.content.ContextCompat
 import com.google.mediapipe.glutil.EglManager
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
 import kotlin.math.max
+import kotlin.math.roundToInt
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.suspendCancellableCoroutine
 
 class QuickPoseCameraView(
         private val isFrontCamera: Boolean,
         private val quickPose: QuickPose,
         private val context: Context,
-        private val targetResolution: Size = Size(1080, 1920)
-) : SurfaceView(context) {
+        private var targetResolution: Size = Size(1920, 1080)
+) : SurfaceView(context), SurfaceHolder.Callback {
         companion object {
                 private val TAG = QuickPoseCameraView::class.java.simpleName
         }
         private var cameraThread: HandlerThread? = null
         private var cameraHandler: Handler? = null
         private var session: CameraCaptureSession? = null
+        private val surfaceReadyDeferred = CompletableDeferred<Surface>()
 
         var camera: CameraDevice? = null
-        var aspectRatio: Float = 1.0f
+        var aspectRatio: Float = 0f
+        private var ratioWidth = 0
+        private var ratioHeight = 0
+
+        init {
+                holder.addCallback(this)
+        }
+
+        override fun surfaceCreated(holder: SurfaceHolder) {
+                Log.d(TAG, "Surface created")
+                surfaceReadyDeferred.complete(holder.surface)
+        }
+
+        override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
+                Log.d(TAG, "Surface changed: format=$format, width=$width, height=$height")
+        }
+
+        override fun surfaceDestroyed(holder: SurfaceHolder) {
+                Log.d(TAG, "Surface destroyed")
+        }
+
+        override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+                super.onMeasure(widthMeasureSpec, heightMeasureSpec)
+                val width = MeasureSpec.getSize(widthMeasureSpec)
+                val height = MeasureSpec.getSize(heightMeasureSpec)
+                if (ratioWidth == 0 || ratioHeight == 0) {
+                        setMeasuredDimension(width, height)
+                } else {
+                        // Cover: scale to fill entire parent, cropping excess
+                        val cameraAspect = ratioWidth.toFloat() / ratioHeight.toFloat()
+                        val fitHeight = (width * cameraAspect).roundToInt()
+                        if (fitHeight >= height) {
+                                setMeasuredDimension(width, fitHeight)
+                        } else {
+                                val fitWidth = (height / cameraAspect).roundToInt()
+                                setMeasuredDimension(fitWidth, height)
+                        }
+                }
+        }
 
         suspend fun start(): Float {
+                if (camera != null) return aspectRatio
                 cameraThread = HandlerThread("CameraThread").apply { start() }
                 cameraHandler = Handler(cameraThread!!.looper)
+
+                Log.d(TAG, "Waiting for surface to be ready...")
+                holder.surface.let {
+                        if (it != null && it.isValid) {
+                                surfaceReadyDeferred.complete(it)
+                        }
+                }
+                surfaceReadyDeferred.await()
+                Log.d(TAG, "Surface is ready.")
 
                 val selectedCameraSize =
                         startCamera(
@@ -60,7 +108,8 @@ class QuickPoseCameraView(
                                         inputTexture!!.setOnFrameAvailableListener(quickPose)
                                 }
                         )
-                this.aspectRatio = selectedCameraSize.width.toFloat() / selectedCameraSize.height.toFloat()
+                this.aspectRatio =
+                        selectedCameraSize.width.toFloat() / selectedCameraSize.height.toFloat()
                 return aspectRatio
         }
 
@@ -71,65 +120,36 @@ class QuickPoseCameraView(
                                 cameraFrameSize: Size,
                                 upscale: Float) -> Unit)?
         ): Size {
-
                 val manager = context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
-                val camera =
-                        openCamera(
-                                manager,
-                                manager.cameraIdList[if (isFrontCamera) 1 else 0],
-                                cameraHandler
-                        )
+                val cameraId = manager.cameraIdList[if (isFrontCamera) 1 else 0]
+                val characteristics = manager.getCameraCharacteristics(cameraId)
 
-                val cameraCharacteristics: CameraCharacteristics =
-                        manager.getCameraCharacteristics(camera.id)
-                val map: StreamConfigurationMap? =
-                        cameraCharacteristics.get<StreamConfigurationMap>(
-                                CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP
-                        )
-                val outputSizes = map?.getOutputSizes(SurfaceTexture::class.java)
-                // outputSizes?.forEach { println(it) }
+                val selectedCameraSize = getPreviewOutputSize(
+                        this.width, this.height, characteristics, SurfaceTexture::class.java
+                )
+                Log.d(TAG, "View size: ${this.width}x${this.height}, selected camera size: $selectedCameraSize")
 
-                val selectedCameraSize = chooseOptimalSize(outputSizes, targetResolution)
+                targetResolution = selectedCameraSize
 
-                val cameraViewSize = this.holder.getSurfaceFrame()
-                val upscale =
-                        max(
-                                cameraViewSize.width().toFloat() /
-                                        selectedCameraSize.width.toFloat(),
-                                cameraViewSize.height().toFloat() /
-                                        selectedCameraSize.height.toFloat()
-                        )
+                // Set surface buffer to match camera output exactly (avoids scaling distortion)
+                holder.setFixedSize(selectedCameraSize.width, selectedCameraSize.height)
 
-                this.layoutParams =
-                        FrameLayout.LayoutParams(
-                                (selectedCameraSize.width * upscale).toInt(),
-                                (selectedCameraSize.height * upscale).toInt(),
-                                Gravity.CENTER
-                        )
+                // Set aspect ratio for onMeasure to size the view correctly in portrait
+                ratioWidth = selectedCameraSize.width
+                ratioHeight = selectedCameraSize.height
+                requestLayout()
+
+                val camera = openCamera(manager, cameraId, cameraHandler)
                 this.camera = camera
+
                 val mlTexture = createSurfaceTexture()
                 val mlSurface = Surface(mlTexture)
-
-                // val characteristics = manager.getCameraCharacteristics(camera.id)
-                // val fpsRanges =
-                //
-                // characteristics.get(CameraCharacteristics.CONTROL_AE_AVAILABLE_TARGET_FPS_RANGES)
-
-                // // Log available FPS ranges
-                // fpsRanges?.forEach { range ->
-                //     Log.d(TAG, "Available FPS range: ${range.lower} - ${range.upper}")
-                // }
-
-                // // Choose the range with highest upper bound
-                // val maxFpsRange = fpsRanges?.maxByOrNull { it.upper } ?: Range(20, 60)
 
                 val captureRequest =
                         camera.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW)
                                 .apply {
                                         addTarget(this@QuickPoseCameraView.holder.surface)
                                         addTarget(mlSurface)
-                                        // set(CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE,
-                                        // maxFpsRange)
                                 }
                                 .build()
 
@@ -148,18 +168,19 @@ class QuickPoseCameraView(
                                                 )
 
                                                 // Detach the SurfaceTexture from the GL context we
-                                                // created
-                                                // earlier so that
-                                                // the MediaPipe pipeline can attach it.
-                                                // Only needed if MediaPipe pipeline doesn't provide
-                                                // a
-                                                // SurfaceTexture.
+                                                // created earlier so that the MediaPipe pipeline can
+                                                // attach it.
                                                 mlTexture.detachFromGLContext()
 
                                                 mainThreadExecutor.execute {
+                                                        val upscale = max(
+                                                                width.toFloat() / selectedCameraSize.height.toFloat(),
+                                                                height.toFloat() / selectedCameraSize.width.toFloat()
+                                                        )
+                                                        Log.d(TAG, "View after layout: ${width}x${height}, upscale: $upscale")
                                                         onComplete?.invoke(
                                                                 mlTexture,
-                                                                selectedCameraSize,
+                                                                Size(selectedCameraSize.height, selectedCameraSize.width),
                                                                 upscale
                                                         )
                                                 }
@@ -207,13 +228,10 @@ class QuickPoseCameraView(
                         }
                 }
 
-
                 return selectedCameraSize
         }
 
-        /**
-         * Opens the camera and returns the opened device (as the result of the suspend coroutine)
-         */
+        /** Opens the camera and returns the opened device (as the result of the suspend coroutine) */
         @SuppressLint("MissingPermission")
         private suspend fun openCamera(
                 manager: CameraManager,
@@ -254,24 +272,8 @@ class QuickPoseCameraView(
                         handler
                 )
         }
-        private fun chooseOptimalSize(choices: Array<Size>?, targetResolution: Size): Size {
-                choices ?: return targetResolution
 
-                val targetRatio = targetResolution.height.toFloat() / targetResolution.width
-                val bestChoice =
-                        choices
-                                .filter { it.height.toFloat() / it.width == targetRatio }
-                                .minByOrNull {
-                                        Math.abs(it.width - targetResolution.width) +
-                                                Math.abs(it.height - targetResolution.height)
-                                }
-                bestChoice?.let {
-                        return bestChoice
-                }
-                return targetResolution
-        }
         private fun createSurfaceTexture(): SurfaceTexture {
-                //        // Create a temporary surface to make the context current.
                 val eglManager = EglManager(null)
                 val tempEglSurface = eglManager.createOffscreenSurface(1, 1)
                 eglManager.makeCurrent(tempEglSurface, tempEglSurface)
@@ -281,6 +283,7 @@ class QuickPoseCameraView(
         }
 
         fun stop() {
+                if (camera == null) return
                 Log.w(QuickPoseCameraView.TAG, "Stopping")
                 cameraThread?.quit()
                 cameraThread = null
