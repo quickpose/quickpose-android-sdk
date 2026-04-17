@@ -8,6 +8,10 @@ import ai.quickpose.core.Side
 import ai.quickpose.core.Status
 import ai.quickpose.devapp.theme.BasicDemoTheme
 import android.app.Activity
+import android.content.Intent
+import android.view.SurfaceView
+import android.view.View
+import android.view.ViewGroup
 import android.view.WindowManager
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,6 +22,10 @@ import androidx.compose.material.IconButton
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Share
+import androidx.core.content.FileProvider
+import java.io.File
+import java.io.FileOutputStream
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
@@ -50,6 +58,7 @@ fun CameraContent() {
         ) // register for your free key at https://dev.quickpose.ai
     }
     var cameraSwitchView by remember { mutableStateOf<QuickPoseCameraSwitchView?>(null) }
+    var overlaySurfaceView by remember { mutableStateOf<SurfaceView?>(null) }
     val cameraAspectRatio = remember { mutableStateOf<Float>(1.0f) }
 
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -94,7 +103,7 @@ fun CameraContent() {
                                 )
                             ),
                             onFrame = { status, overlay, features, feedback, landmarks ->
-                                println("$status, $features")
+                                overlaySurfaceView = overlay
                                 if (status is Status.Success) {
                                     (context as Activity).runOnUiThread {
                                         statusText.value =
@@ -108,6 +117,47 @@ fun CameraContent() {
                 },
                 modifier = Modifier.fillMaxSize()
             )
+            // Share screenshot
+            IconButton(
+                onClick = {
+                    val csv = cameraSwitchView ?: return@IconButton
+                    val overlay = overlaySurfaceView
+                    var cameraSV: SurfaceView? = null
+                    for (i in 0 until csv.childCount) {
+                        val child = csv.getChildAt(i)
+                        if (child is SurfaceView && child.visibility == View.VISIBLE && child !== overlay) {
+                            cameraSV = child; break
+                        }
+                    }
+                    if (cameraSV == null) return@IconButton
+                    QuickPose.captureFrame(cameraSV, overlay) { bitmap ->
+                        if (bitmap != null) {
+                            val file = File(context.cacheDir, "quickpose_screenshot_${System.currentTimeMillis()}.jpg")
+                            FileOutputStream(file).use { bitmap.compress(android.graphics.Bitmap.CompressFormat.JPEG, 95, it) }
+                            bitmap.recycle()
+                            (context as Activity).runOnUiThread {
+                                try {
+                                    val uri = FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", file)
+                                    val intent = Intent(Intent.ACTION_SEND).apply {
+                                        type = "image/jpeg"
+                                        putExtra(Intent.EXTRA_STREAM, uri)
+                                        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                                    }
+                                    context.startActivity(Intent.createChooser(intent, "Share Screenshot"))
+                                } catch (_: Exception) {}
+                            }
+                        }
+                    }
+                },
+                modifier = Modifier.align(Alignment.TopEnd).padding(top = 48.dp, end = 64.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Share,
+                    tint = Color.White,
+                    contentDescription = "Share Screenshot"
+                )
+            }
+            // Switch camera
             IconButton(
                 onClick = {
                     lifecycleOwner.lifecycleScope.launch {
