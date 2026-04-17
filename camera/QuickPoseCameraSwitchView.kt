@@ -52,6 +52,13 @@ constructor(
         backCameraView?.stop()
     }
 
+    fun captureFrame(callback: (android.graphics.Bitmap?) -> Unit) {
+        val camera = if (frontCameraView?.visibility == VISIBLE) frontCameraView else backCameraView
+        val overlay = if (frontOverlayView?.visibility == VISIBLE) frontOverlayView else backOverlayView
+        if (camera == null) { callback(null); return }
+        QuickPose.captureFrame(camera, overlay, callback)
+    }
+
     suspend fun start(useFrontCamera: Boolean): Float {
         if (useFrontCamera) {
             backCameraView?.stop()
