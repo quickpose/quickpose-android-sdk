@@ -4,6 +4,37 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v0.24 - 2026-08-19
+
+### Added
+- Six new fitness exercises: `Skipping`, `Burpees`, `ShoulderTaps`, `HighKneeTaps`, `MountainClimbers`, `Boxing`
+- `Style.relativePointSize` — scales the landmark dots drawn by `Feature.ShowPoints` (0.3 draws points at 30% of the default size)
+
+### Changed
+- Pushups now count when filmed head-on (front-facing) as well as side-on — the torso-orientation gate has been removed
+
+## v0.23 - 2026-08-12
+
+### Changed
+- ONNX Runtime replaced by a pure-Kotlin tree-ensemble evaluator — identical predictions, no native dependency, roughly 110 MB smaller APK footprint
+
+## v0.22 - 2026-07-15
+
+### Added
+- Overlay styling options on `Style`:
+  - `lineCap` — `ROUND` (default), `BUTT`, `SQUARE`
+  - `linePattern` — `SOLID`, `DASHED`, `DOTTED`
+  - `shadow` — drop shadow / glow behind lines, points and labels
+  - `outline` — contrasting border behind lines and points
+  - `imageFill` — reveals a supplied `Bitmap` through the skeleton's lines, points and labels
+  - `typeface` — custom `Typeface` for measurement labels
+  - `letterSpacing` — label letter spacing in ems
+- Front Pushups fitness exercise
+- StylingDemo sample app — live menu for every overlay style option
+
+### Changed
+- Overlay lines now use round caps and joins by default (previously butt caps). Set `lineCap = Style.LineCap.BUTT` to restore.
+
 ## v0.21 - 2026-04-17
 
 ### Added
