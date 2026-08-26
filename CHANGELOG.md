@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v0.25 - 2026-08-26
+
+### Added
+- `QuickPose.ModelConfig(detailedHandTracking)` passed to `start()` / `update()` — explicitly turns MediaPipe hand tracking on or off (same contract as iOS). Defaults to on; set `false` when no hand feature is used to drop the palm detection and both hand-landmark passes from every frame
+- `QuickPose.mlLongEdge` — longest edge, in pixels, of the image fed to the pose models (default 720; `0` = full camera resolution). The camera preview and overlay are unaffected
+
+### Changed
+- Frame pipelining: the graph now holds the next camera frame ready while inference runs (FlowLimiter `max_in_queue: 1`, matching upstream MediaPipe's live-camera configuration) instead of idling until the next camera callback. Output is byte-identical; frames-in-flight stays capped at two
+- Graph input is downscaled to `mlLongEdge` before inference — roughly 7× fewer pixels to convert and rotate per frame at 1080p
+
 ## v0.24 - 2026-08-19
 
 ### Added
