@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### Changed
+- Removed an unused OpenCV 3 native library (`libopencv_java3.so`, arm64-v8a + armeabi-v7a) from `quickpose-core` — roughly 29 MB smaller AAR. MediaPipe has bundled and loaded OpenCV 4 since 0.16
+- Sample apps, README and docs no longer declare `com.microsoft.onnxruntime:onnxruntime-android` (not needed since 0.23) and now pin `quickpose-core:0.25`
+
 ## v0.25 - 2026-08-26
 
 ### Added

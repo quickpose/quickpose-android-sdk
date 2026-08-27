@@ -62,9 +62,8 @@ dependencies {
     implementation 'com.google.flogger:flogger-system-backend:latest.release'
     implementation 'com.google.guava:guava:33.4.0-android'
     implementation 'com.google.protobuf:protobuf-javalite:4.29.3'
-    implementation 'com.microsoft.onnxruntime:onnxruntime-android:latest.release'
 
     // QuickPose SDK
     implementation 'ai.quickpose:quickpose-mp:0.6'
-    implementation 'ai.quickpose:quickpose-core:0.20'
+    implementation 'ai.quickpose:quickpose-core:0.25'
 }

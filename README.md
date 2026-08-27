@@ -97,9 +97,8 @@ dependencies {
     implementation("com.google.guava:guava:27.0.1-android")
     implementation("com.google.protobuf:protobuf-javalite:3.19.1")
 
-    implementation("com.microsoft.onnxruntime:onnxruntime-android:latest.release")
-    implementation("ai.quickpose:quickpose-mp:0.4")
-    implementation("ai.quickpose:quickpose-core:0.18")
+    implementation("ai.quickpose:quickpose-mp:0.6")
+    implementation("ai.quickpose:quickpose-core:0.25")
 }
 
 ```
@@ -164,7 +163,6 @@ To enable proguard/r8 minifying, add these to your proguard rules:
 -keep public class * extends com.google.protobuf.GeneratedMessageLite { *; }
 
 -keepclassmembers class com.google.common.flogger.** { *; }
--keep class ai.onnxruntime.** { *; }
 -keep class ai.quickpose.core.Status$* { *; }
 
 ```
