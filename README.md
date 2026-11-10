@@ -98,7 +98,7 @@ dependencies {
     implementation("com.google.protobuf:protobuf-javalite:3.19.1")
 
     implementation("ai.quickpose:quickpose-mp:0.6")
-    implementation("ai.quickpose:quickpose-core:0.25")
+    implementation("ai.quickpose:quickpose-core:0.26")
 }
 
 ```

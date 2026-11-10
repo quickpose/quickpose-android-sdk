@@ -71,7 +71,7 @@ dependencies {
     implementation 'com.google.protobuf:protobuf-javalite:3.19.1'
 
     implementation 'ai.quickpose:quickpose-mp:0.6'
-    implementation 'ai.quickpose:quickpose-core:0.25'
+    implementation 'ai.quickpose:quickpose-core:0.26'
 
     implementation 'androidx.core:core-performance:1.0.0-alpha02'
 
